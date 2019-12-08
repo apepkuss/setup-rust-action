@@ -23,6 +23,7 @@ export async function install() {
 
     if (os.platform() == 'win32') {
       let cargoPath = '';
+
       {
         const options = {
           listeners: {
@@ -33,6 +34,7 @@ export async function install() {
         };
         await exec.exec('where', ['rustup.exe'], options);
       }
+
       let rustupPath = cargoPath.split('\\').slice(0, -3).concat([".rustup"]).join("\\");
       let defaultClearedFilePath = `${rustupPath}\\default_cleared`;
 
@@ -40,6 +42,29 @@ export async function install() {
         // Github's default Windows install comes with rustup pre-installed with stable, including
         // rust-docs. This removes the default stable install so that it doesn't update rust-docs.
         renameSync(`${rustupPath}\\toolchains`, `${rustupPath}\\_toolchains`);
+        appendFileSync(defaultClearedFilePath, '');
+      }
+    } else {
+      let cargoPath = '';
+
+      {
+        const options = {
+          listeners: {
+            stdout: (data: Buffer) => {
+              cargoPath += data.toString();
+            }
+          }
+        };
+        await exec.exec('which', ['rustup'], options);
+      }
+
+      let rustupPath = cargoPath.split('/').slice(0, -3).concat([".rustup"]).join('/');
+      let defaultClearedFilePath = path.join(rustupPath, 'default_cleared');
+
+      if (!existsSync(defaultClearedFilePath)) {
+        // Github's default Ubuntu install comes with rustup pre-installed with stable, including
+        // rust-docs. This removes the default stable install so that it doesn't update rust-docs.
+        renameSync(path.join(rustupPath, 'toolchains'), path.join(rustupPath, '_toolchains'));
         appendFileSync(defaultClearedFilePath, '');
       }
     }
