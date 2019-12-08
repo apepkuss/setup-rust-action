@@ -24,7 +24,7 @@ jobs:
             components: 'rustfmt, clippy'
             targets: 'x86_64-unknown-linux-musl'
     steps:
-    - uses: hecrj/setup-rust-action@master
+    - uses: hecrj/setup-rust-action@ubuntu-uninstall-default-stable
       with:
         rust-version: ${{ matrix.rust }}
         components: ${{ matrix.components || '' }}
